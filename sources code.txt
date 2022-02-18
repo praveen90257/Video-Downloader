@@ -1,0 +1,77 @@
+import tkinter as tk
+import subprocess
+from tkinter import filedialog
+from tkinter import ttk
+from tkinter.font import Font
+from tkinter import *
+import threading
+from PIL import ImageTk,Image
+import tkinter.messagebox
+
+master = tk.Tk()
+dest = StringVar()
+master.geometry('530x200')
+master.resizable(False,False)
+
+
+img=Image.open('C:\\Users\\manoj kumar\\Documents\\butterfly\\bt3.jpg')
+bkend=ImageTk.PhotoImage(img)
+
+lb=Label(master,image=bkend)
+lb.place(x=0,y=0)
+
+def running(s): 
+    subprocess.call(s, shell=True, cwd=dest.get())
+    
+
+def download_video():
+    if dest.get() is '':  # Check whether User chosen Destination or not
+        destination_label.configure(text='Please Select Destination!')
+    else:
+        link = e1.get()
+        if link == '':  # Checking whether User gave Link or not
+            destination_label.configure(text='Paste Link!')
+            return
+        elif 'playlist' in link:  # Particular actions for Playlist
+            if var.get() == 0:
+                destination_label.configure(text='Playlist Found.. Please Select Actions Below')
+            elif var.get() == 1:
+                destination_label.configure(text='Downloading.. All Actions will be Stopped!')
+                cmd = 'youtube-dl -i ' + link
+                # cmd = 'youtube-dl -o "%(playlist_index)s-%(title)s.%(ext)s" https://www.youtube.com/playlist?list=' + link.split('=')[-1]
+                th = threading.Thread(target=running, args=(cmd,))
+                th.start()
+            #else:
+            #    destination_label.configure(text='Some Error!')
+        else:  # Single Video Link Found and it will download
+            cmd = 'youtube-dl -i ' + link.split('&')[0]
+            th = threading.Thread(target=running, args=(cmd,))
+            th.start()
+        #subprocess.call(cmd, shell=True, cwd=dest.get())
+    tkinter.messagebox.showinfo("info!","Downloading your video")
+def destination():  # Opening File Dialog to select Destination Folder
+    global dest
+    act = filedialog.askdirectory()
+    dest.set(act)
+    print(f'Selectedzz : {dest.get()}')
+    destination_label.configure(text=dest.get())
+#Title
+master.title("Video Downloader")
+#
+tk.Label(master, text="Enter URL Here",bg="pink",fg='blue',font=("Times New Roman", 18,"italic","bold")).grid(column=0,padx=0)
+tk.Label(master,text="PATH",bg="pink",fg='blue',font=("Times New Roman", 18,"italic","bold")).grid(row=2)
+#master.wm_attributes("-transparentcolor","blue")
+e1 = tk.Entry(master,width=35, textvariable='Ctrl + V')
+e1.grid(row=0, column=1)
+#Button
+tk.Button(master, text='Download Video', command=download_video,font=("Times New Roman", 12,"italic","bold")).grid(row=4, column=1, sticky=tk.W, pady=4)
+tk.Button(master, text='Select Destination', command=destination,font=("Times New Roman", 12,"italic","bold")).grid(row=3, column=1, sticky=tk.W, pady=4)
+destination_label=tk.Entry(master,textvariable="Ctrl + V")
+destination_label = ttk.Label(master,width=30, text="ENTER YOUR PATH!", foreground='black', background='white',
+                              font=('Times New Roman', 10, 'italic'))
+destination_label.grid(column=1, row=2, sticky=tk.W, pady=3)
+#Team name
+lb1=tk.Label(master, text="#PHOENIX",height=1,width=10,bg="pink",fg='red',font=("Times New Roman", 8,"italic","bold")).grid(padx=10,pady=30)
+var = IntVar()
+#master.config(background="pink")
+tk.mainloop()
